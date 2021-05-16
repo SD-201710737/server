@@ -5,7 +5,7 @@ const HOST = '0.0.0.0';
 
 const app = express();
 
-app.get('/', (req, res) => {
+app.get('/info', (req, res) => {
     res.json({
         "componente": "server",
         "descrição": "serve os clientes com os serviços X, Y e Z",
