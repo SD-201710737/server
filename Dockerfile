@@ -7,6 +7,6 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3001
+ENTRYPOINT [ "docker-express" ]
 
-CMD ["npm", "start"]
+CMD ["$PORT"]
