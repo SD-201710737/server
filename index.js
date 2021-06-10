@@ -14,9 +14,14 @@ app.use(express.json());
 app.get('/info', (req, res) => {
     res.json({
         "componente": "server",
+        "versao": "0.1",
         "descrição": "serve os clientes com os serviços X, Y e Z",
-        "versao": "0.1"
-    });
+        "ponto_de_acesso": "https://sd-jhsq.herokuapp.com",
+        "status": "up",
+        "identificacao": 2,
+        "lider": 0,
+        "eleicao": "valentao" 
+      });
 })
 
 app.listen(parseInt(process.env.PORT), HOST);
