@@ -21,7 +21,31 @@ var info = {
     status: "up",
     identificacao: 2,
     lider: false,
-    eleicao: "valentao"
+    eleicao: "valentao",
+    servidores_conhecidos: [
+        {
+            id: 1,
+            url: "https://sd-rdm.herokuapp.com"
+        },
+        {
+            id: 2,
+            url: "https://sd-201620236.herokuapp.com"
+        },
+        {
+            id: 3,
+            url: "https://sd-mgs.herokuapp.com"
+        },
+    ]
+}
+
+var myEleicao = {
+    "tipo_de_eleicao_ativa": info.eleicao,
+    "eleicao_em_andamento": false
+}
+
+var myCoordenador = {
+    "coordenador": 2,
+    "id_eleicao": "o id da eleição"
 }
 
 app.get('/info', (req, res) => {
@@ -40,10 +64,10 @@ app.post('/info', (req, res) => {
     if (typeof (req.body.lider) === "boolean")
         info.lider = lider;
 
-    if (req.body.eleicao === "valentao" || req.body.eleicao === "anel")
+    if (req.body.eleicao === "valentao" || req.body.eleicao === "anel") {
         info.eleicao = eleicao;
-
-    console.log(info)
+        myEleicao.tipo_de_eleicao_ativa = eleicao;
+    }
 
     res.json(info);
 })
@@ -62,6 +86,21 @@ app.post('/recurso', (req, res) => {
     }
 })
 
-app.get('/recurso', (req, res) => res.json({ "ocupado": ocupado }))
+app.get('/recurso', (req, res) => res.json({ ocupado }))
+
+app.get('/eleicao', (req, res) => res.json(myEleicao))
+
+app.post('/eleicao', (req, res) => {
+    myEleicao.eleicao_em_andamento = true;
+
+    res.status(200).json(myEleicao);
+})
+
+app.post('/eleicao/coordenador', (req, res) => {
+    myCoordenador.coordenador = req.body.coordenador;
+    myCoordenador.id_eleicao = req.body.id_eleicao;
+
+    res.json(myCoordenador);
+})
 
 app.listen(parseInt(process.env.PORT), HOST);
