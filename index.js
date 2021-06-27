@@ -1,8 +1,11 @@
-const express = require('express');
-const cors = require('cors');
+import express from 'express';
+import cors from 'cors';
+import dotenv from 'dotenv';
 
-if (process.env.NODE_ENV !== "production")
-    require('dotenv').config();
+if (process.env.NODE_ENV !== "production") {
+
+    dotenv.config();
+}
 
 // const PORT = 3001;
 const HOST = '0.0.0.0';
@@ -10,6 +13,8 @@ const HOST = '0.0.0.0';
 const app = express();
 app.use(cors());
 app.use(express.json());
+
+import * as elecService from './services/eleicaoservice.js';
 
 var ocupado = false;
 
@@ -19,7 +24,7 @@ var info = {
     descricao: "serve os clientes com os serviços /info, /recurso, /eleicao",
     ponto_de_acesso: "https://sd-jhsq.herokuapp.com",
     status: "up",
-    identificacao: 2,
+    identificacao: 90,
     lider: false,
     eleicao: "valentao",
     servidores_conhecidos: [
@@ -99,9 +104,18 @@ app.get('/recurso', (req, res) => res.json({ ocupado }))
 app.get('/eleicao', (req, res) => res.json(myEleicao))
 
 app.post('/eleicao', (req, res) => {
-    myEleicao.eleicao_em_andamento = true;
+    const { id } = req.body;
+    let hasCompetition = false;
 
-    res.status(200).json(myEleicao);
+    if (myEleicao.eleicao_em_andamento === false) {
+        myEleicao.eleicao_em_andamento = true;
+        hasCompetition = elecService.runEleicao(id, info.servidores_conhecidos, info.eleicao, info.identificacao);
+
+        if(!hasCompetition)
+            elecService.handleCoordenador(info, myCoordenador, id);
+    }
+
+    res.status(200).json(myCoordenador);
 })
 
 app.post('/eleicao/coordenador', (req, res) => {
