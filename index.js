@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-import * as elecService from './services/eleicaoservice.js';
+import * as elecService from './services/eleicaoService.js';
 
 var ocupado = false;
 
@@ -24,7 +24,7 @@ var info = {
     descricao: "serve os clientes com os serviços /info, /recurso, /eleicao",
     ponto_de_acesso: "https://sd-jhsq.herokuapp.com",
     status: "up",
-    identificacao: 90,
+    identificacao: 5,
     lider: false,
     eleicao: "valentao",
     servidores_conhecidos: [
@@ -46,7 +46,7 @@ var info = {
         },
         {
             id: 5,
-            url: "https://sd-app-server-jesulino.herokuapp.com/"
+            url: "https://sd-app-server-jesulino.herokuapp.com"
         }
     ]
 }
@@ -105,16 +105,13 @@ app.get('/eleicao', (req, res) => res.json(myEleicao))
 
 app.post('/eleicao', (req, res) => {
     const { id } = req.body;
-    let hasCompetition = false;
 
     if (myEleicao.eleicao_em_andamento === false) {
         myEleicao.eleicao_em_andamento = true;
-        hasCompetition = elecService.runEleicao(id, info.servidores_conhecidos, info.eleicao, info.identificacao);
-
-        if(!hasCompetition)
-            elecService.handleCoordenador(info, myCoordenador, id);
+        elecService.runEleicao(id, info, myCoordenador);
     }
 
+    myEleicao.eleicao_em_andamento = false;
     res.status(200).json(myCoordenador);
 })
 
@@ -122,6 +119,10 @@ app.post('/eleicao/coordenador', (req, res) => {
     myCoordenador.coordenador = req.body.coordenador;
     myCoordenador.id_eleicao = req.body.id_eleicao;
 
+    res.json(myCoordenador);
+})
+
+app.get('/eleicao/coordenador', (req, res) => {
     res.json(myCoordenador);
 })
 
