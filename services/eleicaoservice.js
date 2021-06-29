@@ -12,6 +12,7 @@ module.exports = {
 
     runValentao: async function (id, info, coord) {
         var hasCompetition = false;
+        var maxId = 0;
 
         for (const server of info.servidores_conhecidos) {
             try {
@@ -19,7 +20,10 @@ module.exports = {
 
                 if (data.identificacao > info.identificacao) {
                     hasCompetition = true;
-                    axios.post(`${server.url}/eleicao`, { id }).catch(err => console.error(err.message));
+                    if(data.identificacao > maxId)
+                        maxId = data.identificacao;
+
+                    axios.post(`${server.url}/eleicao`, { id }).catch(err => console.error(err.message));    
                 }
             } catch (err) {
                 console.error(err.message);
@@ -27,12 +31,21 @@ module.exports = {
         }
 
         if (!hasCompetition)
-            this.handleCoordenador(id, info, coord);
+            this.setCoordenador(id, info, coord);
+        else if(hasCompetition && info.lider)
+            this.unsetCoordenador(id, info, coord, maxId);
+
     },
 
-    handleCoordenador: function (id, info, coord) {
+    setCoordenador: function (id, info, coord) {
         info.lider = true;
         coord.coordenador = info.identificacao;
+        coord.id_eleicao = id;
+    },
+
+    unsetCoordenador: function (id, info, coord, maxId) {
+        info.lider = false;
+        coord.coordenador = maxId;
         coord.id_eleicao = id;
     }
 }
