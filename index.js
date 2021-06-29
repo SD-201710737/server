@@ -1,10 +1,8 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
+const express = require('express');
+const cors = require('cors');
 
 if (process.env.NODE_ENV !== "production") {
-
-    dotenv.config();
+    require('dotenv').config();
 }
 
 // const PORT = 3001;
@@ -14,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-import * as elecService from './services/eleicaoService.js';
+const elecService = require('./services/eleicaoService.js');
 
 var ocupado = false;
 
