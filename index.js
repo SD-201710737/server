@@ -12,7 +12,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const elecService = require('./services/eleicaoService.js');
+const elecService = require('./services/eleicaoservice.js');
 
 var ocupado = false;
 
