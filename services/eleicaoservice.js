@@ -18,7 +18,7 @@ module.exports = {
             try {
                 const { data } = await axios(`${server.url}/info`).catch(err => console.log(`Connection error! ${err.message}`));
 
-                if (data.identificacao > info.identificacao) {
+                if (data.identificacao > info.identificacao && data.status === "up") {
                     hasCompetition = true;
                     if(data.identificacao > maxId)
                         maxId = data.identificacao;
