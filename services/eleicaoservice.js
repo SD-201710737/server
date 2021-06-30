@@ -20,10 +20,10 @@ module.exports = {
 
                 if (data.identificacao > info.identificacao && data.status === "up") {
                     hasCompetition = true;
-                    if(data.identificacao > maxId)
+                    if (data.identificacao > maxId)
                         maxId = data.identificacao;
 
-                    axios.post(`${server.url}/eleicao`, { id }).catch(err => console.error(err.message));    
+                    axios.post(`${server.url}/eleicao`, { id }).catch(err => console.error(err.message));
                 }
             } catch (err) {
                 console.error(err.message);
@@ -31,16 +31,23 @@ module.exports = {
         }
 
         if (!hasCompetition)
-            this.setCoordenador(id, info, coord);
-        else if(hasCompetition && info.lider)
+            this.setCoordenador(id, info, coord, info.servidores_conhecidos);
+        else
             this.unsetCoordenador(id, info, coord, maxId);
 
     },
 
-    setCoordenador: function (id, info, coord) {
+    setCoordenador: async function (id, info, coord, servers) {
         info.lider = true;
         coord.coordenador = info.identificacao;
         coord.id_eleicao = id;
+
+        servers.forEach(server => {
+            axios.post(`${server.url}/eleicao/coordenador`, {
+                coordenador: info.identificacao,
+                id_eleicao: id
+            }).catch(err => console.error(err.message));
+        })
     },
 
     unsetCoordenador: function (id, info, coord, maxId) {

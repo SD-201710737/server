@@ -107,20 +107,32 @@ app.post('/eleicao', (req, res) => {
     if (myEleicao.eleicao_em_andamento === false) {
         myEleicao.eleicao_em_andamento = true;
         elecService.runEleicao(id, info, myCoordenador);
+    } else {
+        console.error("Eleicao negada. Já existe uma eleição em andamento.")
+        res.status(409).json(myEleicao);
     }
 
-    myEleicao.eleicao_em_andamento = false;
+    if(info.lider)
+        myEleicao.eleicao_em_andamento = false;
+
     res.status(200).json(myCoordenador);
 })
 
 app.post('/eleicao/coordenador', (req, res) => {
     myCoordenador.coordenador = req.body.coordenador;
     myCoordenador.id_eleicao = req.body.id_eleicao;
+    myEleicao.eleicao_em_andamento = false;
 
     res.json(myCoordenador);
 })
 
 app.get('/eleicao/coordenador', (req, res) => {
+    res.json(myCoordenador);
+})
+
+app.get('/eleicao/reset', (req, res) => {
+    myCoordenador.coordenador = 0;
+    myCoordenador.id_eleicao = '';
     res.json(myCoordenador);
 })
 
