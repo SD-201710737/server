@@ -77,8 +77,12 @@ module.exports = {
                     })
             }
 
-            if (Math.max(info.identificacao, ...servers.map(server => server.identificacao)))
-                axios.post(`${servers[0].url}/eleicao`, { id }).catch(err => console.error(err.message));
+            
+            if (Math.max(info.identificacao, ...servers.map(server => server.identificacao))){
+                const minId = Math.min(...servers.map(server => server.identificacao));
+                const selectedServer = servers.filter(server => server.identificacao === minId);
+                axios.post(`${selectedServer[0].url}/eleicao`, { id }).catch(err => console.error(err.message));
+            }
             else {
                 const maxId = Math.max(info.identificacao, ...servers.map(server => server.identificacao));
                 const selectedServer = servers.filter(server => server.identificacao === maxId)
