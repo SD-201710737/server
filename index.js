@@ -104,7 +104,7 @@ app.get('/eleicao', (req, res) => res.json(myEleicao))
 app.post('/eleicao', (req, res) => {
     const { id } = req.body;
 
-    if (myEleicao.eleicao_em_andamento === false) {
+    if (myEleicao.eleicao_em_andamento === false || info.eleicao === "anel") {
         myEleicao.eleicao_em_andamento = true;
         elecService.runEleicao(id, info, myCoordenador, myEleicao);
     } else {
