@@ -24,24 +24,24 @@ var info = {
     status: "up",
     identificacao: 5,
     lider: false,
-    eleicao: "valentao",
+    eleicao: "anel",
     servidores_conhecidos: [
         {
             id: 1,
             url: "https://sd-rdm.herokuapp.com"
         },
-        {
-            id: 2,
-            url: "https://sd-201620236.herokuapp.com"
-        },
-        {
-            id: 3,
-            url: "https://sd-mgs.herokuapp.com"
-        },
-        {
-            id: 4,
-            url: "https://sd-dmss.herokuapp.com"
-        },
+        // {
+        //     id: 2,
+        //     url: "https://sd-201620236.herokuapp.com"
+        // },
+        // {
+        //     id: 3,
+        //     url: "https://sd-mgs.herokuapp.com"
+        // },
+        // {
+        //     id: 4,
+        //     url: "https://sd-dmss.herokuapp.com"
+        // },
         {
             id: 5,
             url: "https://sd-app-server-jesulino.herokuapp.com"
@@ -50,13 +50,13 @@ var info = {
 }
 
 var myEleicao = {
-    "tipo_de_eleicao_ativa": info.eleicao,
-    "eleicao_em_andamento": false
+    tipo_de_eleicao_ativa: info.eleicao,
+    eleicao_em_andamento: false
 }
 
 var myCoordenador = {
-    "coordenador": 2,
-    "id_eleicao": "o id da eleição"
+    coordenador: 2,
+    id_eleicao: "o id da eleição"
 }
 
 app.get('/info', (req, res) => {
@@ -106,7 +106,7 @@ app.post('/eleicao', (req, res) => {
 
     if (myEleicao.eleicao_em_andamento === false) {
         myEleicao.eleicao_em_andamento = true;
-        elecService.runEleicao(id, info, myCoordenador);
+        elecService.runEleicao(id, info, myCoordenador, myEleicao);
     } else {
         console.error("Eleicao negada. Já existe uma eleição em andamento.")
         res.status(409).json(myEleicao);
@@ -122,7 +122,7 @@ app.post('/eleicao/coordenador', (req, res) => {
     myCoordenador.coordenador = req.body.coordenador;
     myCoordenador.id_eleicao = req.body.id_eleicao;
     myEleicao.eleicao_em_andamento = false;
-
+    
     res.json(myCoordenador);
 })
 
@@ -133,6 +133,7 @@ app.get('/eleicao/coordenador', (req, res) => {
 app.get('/eleicao/reset', (req, res) => {
     myCoordenador.coordenador = 0;
     myCoordenador.id_eleicao = '';
+    myEleicao.eleicao_em_andamento = false;
     res.json(myCoordenador);
 })
 
