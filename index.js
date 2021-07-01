@@ -123,6 +123,9 @@ app.post('/eleicao/coordenador', (req, res) => {
     myCoordenador.id_eleicao = req.body.id_eleicao;
     myEleicao.eleicao_em_andamento = false;
     
+    if(req.body.coordenador === info.identificacao)
+        info.lider = true;
+
     res.json(myCoordenador);
 })
 
