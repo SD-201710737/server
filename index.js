@@ -55,8 +55,8 @@ var myEleicao = {
 }
 
 var myCoordenador = {
-    coordenador: 2,
-    id_eleicao: "o id da eleição"
+    coordenador: -1,
+    id_eleicao: ""
 }
 
 app.get('/info', (req, res) => {
@@ -125,6 +125,8 @@ app.post('/eleicao/coordenador', (req, res) => {
     
     if(req.body.coordenador === info.identificacao)
         info.lider = true;
+    else
+        info.lider = false;
 
     res.json(myCoordenador);
 })
