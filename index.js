@@ -13,6 +13,7 @@ app.use(cors());
 app.use(express.json());
 
 const elecService = require('./services/eleicaoservice.js');
+const recursoService = require('./services/recursoService.js');
 
 var ocupado = false;
 
@@ -34,14 +35,14 @@ var info = {
         //     id: 2,
         //     url: "https://sd-201620236.herokuapp.com"
         // },
-        // {
-        //     id: 3,
-        //     url: "https://sd-mgs.herokuapp.com"
-        // },
-        // {
-        //     id: 4,
-        //     url: "https://sd-dmss.herokuapp.com"
-        // },
+        {
+            id: 3,
+            url: "https://sd-mgs.herokuapp.com"
+        },
+        {
+            id: 4,
+            url: "https://sd-dmss.herokuapp.com"
+        },
         {
             id: 5,
             url: "https://sd-app-server-jesulino.herokuapp.com"
@@ -84,20 +85,40 @@ app.post('/info', (req, res) => {
 })
 
 app.post('/recurso', (req, res) => {
-    if (!ocupado) {
+    if (!ocupado && info.lider) {
         ocupado = true
-        res.json({
-            ocupado
-        })
-        setTimeout(() => ocupado = false, 10000)
-    } else {
-        res.status(409).json({
-            ocupado
-        })
+        res.json({ ocupado })
+        setTimeout(() => ocupado = false, 20000)
+    } else if (!ocupado && !info.lider) {
+        const leaderIsBusy = recursoService.askPermission(info.servidores_conhecidos);
+
+        if (leaderIsBusy) {
+            ocupado = true
+            res.status(409).json({ ocupado })
+            setTimeout(() => ocupado = false, 20000)
+        }
+        else {
+            ocupado = true
+            res.json({ ocupado })
+            setTimeout(() => ocupado = false, 20000)
+        }
+    } else if (ocupado) {
+        res.status(409).json({ ocupado })
     }
 })
 
-app.get('/recurso', (req, res) => res.json({ ocupado }))
+app.get('/recurso', (req, res) => {
+    if (info.lider)
+        res.json({ ocupado, id_lider: info.identificacao })
+    else {
+        const leaderId = recursoService.getLeaderId(info.servidores_conhecidos);
+
+        if (ocupado)
+            res.status(409).json({ ocupado, id_lider: leaderId })
+        else
+            res.json({ ocupado, id_lider: leaderId })
+    }
+})
 
 app.get('/eleicao', (req, res) => res.json(myEleicao))
 
@@ -112,7 +133,7 @@ app.post('/eleicao', (req, res) => {
         res.status(409).json(myEleicao);
     }
 
-    if(info.lider)
+    if (info.lider)
         myEleicao.eleicao_em_andamento = false;
 
     res.status(200).json(myCoordenador);
@@ -122,8 +143,8 @@ app.post('/eleicao/coordenador', (req, res) => {
     myCoordenador.coordenador = req.body.coordenador;
     myCoordenador.id_eleicao = req.body.id_eleicao;
     myEleicao.eleicao_em_andamento = false;
-    
-    if(req.body.coordenador === info.identificacao)
+
+    if (req.body.coordenador === info.identificacao)
         info.lider = true;
     else
         info.lider = false;
