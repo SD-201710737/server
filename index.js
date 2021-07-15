@@ -107,11 +107,11 @@ app.post('/recurso', (req, res) => {
     }
 })
 
-app.get('/recurso', (req, res) => {
+app.get('/recurso', async (req, res) => {
     if (info.lider)
         res.json({ ocupado, id_lider: info.identificacao })
     else {
-        const leaderId = recursoService.getLeaderId(info.servidores_conhecidos);
+        const leaderId = await recursoService.getLeaderId(info.servidores_conhecidos);
 
         if (ocupado)
             res.status(409).json({ ocupado, id_lider: leaderId })
