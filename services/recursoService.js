@@ -35,7 +35,7 @@ module.exports = {
         return leaderIsBusy;
     },
 
-    getLeaderId: function (servers) {
+    getLeaderId: async function (servers) {
         for (const server of servers) {
             const { data } = await axios.get(`${server.url}/info`)
                 .catch(err => console.log(`Connection error! ${err.message}`));
