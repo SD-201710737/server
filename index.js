@@ -84,13 +84,13 @@ app.post('/info', (req, res) => {
     res.json(info);
 })
 
-app.post('/recurso', (req, res) => {
+app.post('/recurso', async (req, res) => {
     if (!ocupado && info.lider) {
         ocupado = true
         res.json({ ocupado })
         setTimeout(() => ocupado = false, 20000)
     } else if (!ocupado && !info.lider) {
-        const leaderIsBusy = recursoService.askPermission(info.servidores_conhecidos);
+        const leaderIsBusy = await recursoService.askPermission(info.servidores_conhecidos);
 
         if (leaderIsBusy) {
             ocupado = true
