@@ -16,7 +16,19 @@ module.exports = {
         var hasCompetition = false;
         var maxId = 0;
 
+        let servers = [];
         for (const server of info.servidores_conhecidos) {
+            const { data } = await axios(`${server.url}/info`)
+                .catch(err => console.log(`Connection error! ${err.message}`));
+
+            if (data.status === "up" && data.eleicao === "valentao")
+                servers.push({
+                    identificacao: data.identificacao,
+                    url: server.url
+                })
+        }
+
+        for (const server of servers) {
             try {
                 const { data } = await axios(`${server.url}/info`).catch(err => console.log(`Connection error! ${err.message}`));
 
@@ -33,7 +45,7 @@ module.exports = {
         }
 
         if (!hasCompetition)
-            this.setCoordenador(id, info, coord);
+            this.setCoordenador(id, info, coord, servers);
         else
             this.unsetCoordenador(id, info, coord, maxId);
 
@@ -44,15 +56,27 @@ module.exports = {
         ids.shift();
         ids = ids.map(filteredId => parseInt(filteredId));
 
+        let servers = [];
+        for (const server of info.servidores_conhecidos) {
+            const { data } = await axios(`${server.url}/info`)
+                .catch(err => console.log(`Connection error! ${err.message}`));
+
+            if (data.status === "up" && data.eleicao === "anel")
+                servers.push({
+                    identificacao: data.identificacao,
+                    url: server.url
+                })
+        }
+
         if (ids[0] === info.identificacao) {
             const maxId = Math.max(...ids);
 
             if (maxId === info.identificacao)
-                this.setCoordenador(id, info, coord);
+                this.setCoordenador(id, info, coord, servers);
             else {
                 this.unsetCoordenador(id, info, coord, maxId);
 
-                for (const server of info.servidores_conhecidos) {
+                for (const server of servers) {
                     axios.post(`${server.url}/eleicao/coordenador`, {
                         coordenador: maxId,
                         id_eleicao: id
@@ -65,18 +89,6 @@ module.exports = {
             if (!ids.some(elem => elem === info.identificacao))
                 id = id.concat(`-${info.identificacao}`);
 
-            let servers = [];
-            for (const server of info.servidores_conhecidos) {
-                const { data } = await axios(`${server.url}/info`)
-                    .catch(err => console.log(`Connection error! ${err.message}`));
-
-                if (data.status === "up" && data.eleicao === "anel")
-                    servers.push({
-                        identificacao: data.identificacao,
-                        url: server.url
-                    })
-            }
-
             const serverIds = servers.map(server => server.identificacao);
 
             if (Math.max(info.identificacao, ...serverIds) === info.identificacao) {
@@ -88,23 +100,19 @@ module.exports = {
                 axios.post(`${selectedServer[0].url}/eleicao`, { id }).catch(err => console.error(err.message));
             }
             else {
-                const maxId = Math.max(info.identificacao, ...serverIds);
-                const selectedServer = servers.filter(server => {
-                    if (server.identificacao === maxId)
-                        return server;
-                });
-                axios.post(`${selectedServer[0].url}/eleicao`, { id }).catch(err => console.error(err.message));
+                const selectedServer = servers.find(server => server.identificacao > info.identificacao);
+                axios.post(`${selectedServer.url}/eleicao`, { id }).catch(err => console.error(err.message));
             }
 
         }
     },
 
-    setCoordenador: async function (id, info, coord) {
+    setCoordenador: async function (id, info, coord, servers) {
         info.lider = true;
         coord.coordenador = info.identificacao;
         coord.id_eleicao = id;
 
-        info.servidores_conhecidos.forEach(server => {
+        servers.forEach(server => {
             axios.post(`${server.url}/eleicao/coordenador`, {
                 coordenador: info.identificacao,
                 id_eleicao: id
